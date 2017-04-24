@@ -29,6 +29,7 @@ define accounts::user(
   $bash_profile_content = undef,
   $bash_profile_source  = undef,
   $system               = false,
+  $ignore_password      = false,
 ) {
   validate_re($ensure, '^present$|^absent$')
   validate_bool($locked, $managehome, $purge_sshkeys)
@@ -105,6 +106,12 @@ define accounts::user(
     }
   }
 
+  if $ignore_password {
+    $real_password = undef
+  } else {
+    $real_password = $password
+  }
+
   user { $name:
     ensure         => $ensure,
     shell          => $_shell,
@@ -115,7 +122,7 @@ define accounts::user(
     groups         => $groups,
     membership     => $membership,
     managehome     => $managehome,
-    password       => $password,
+    password       => $real_password,
     purge_ssh_keys => $purge_sshkeys,
     system         => $system,
   }
